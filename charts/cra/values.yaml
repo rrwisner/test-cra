@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: codehutlabs/cra-runtime-environment-variables
+  repository: 714845803326.dkr.ecr.us-east-1.amazonaws.com/test-cra:branch-main
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: 'latest'

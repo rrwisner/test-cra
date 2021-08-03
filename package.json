@@ -1,5 +1,5 @@
 {
-  "name": "cra-runtime-environment-variables",
+  "name": "test-cra",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,11 +11,17 @@
     "react-scripts": "4.0.3",
     "web-vitals": "^1.0.1"
   },
+  "devDependencies": {
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-plugin-cypress": "^2.11.2",
+    "eslint-plugin-unused-imports": "^1.1.1"
+  },
   "scripts": {
     "dev": "chmod +x ./env.sh && ./env.sh && mv env-config.js ./public/env-config.js && react-scripts start",
     "start": "react-scripts start",
     "build": "sh -ac '. ./.env; react-scripts build'",
     "test": "react-scripts test",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
