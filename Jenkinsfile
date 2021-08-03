@@ -47,6 +47,14 @@ podTemplate(
       resourceRequestCpu: '700m',
       resourceRequestMemory: '2Gi',
     )
+  ],
+  volumes: [
+    // mount the host's docker socket so we can build docker images
+    // and reuse cache across builds on the same node
+    hostPathVolume(
+      mountPath: '/var/run/docker.sock',
+      hostPath:  '/var/run/docker.sock'
+    ),
   ]
 )
 {
