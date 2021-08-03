@@ -59,6 +59,7 @@ podTemplate(
 )
 {
   node(label) {
+
     stage('Setup') {
       container('main') {
         def scmVars = checkout scm
@@ -79,5 +80,30 @@ podTemplate(
         sh "docker build --build-arg NPM_TOKEN_ARG=\$NPM_TOKEN --network=host -t $IMAGE ."
       }
     }
+
+    stage('Vet and Test') {
+      container('main') {
+        parallel (
+          'Vet': {
+            try {
+              sh "docker run $IMAGE npm run lint -- --quiet"
+            } catch (e) {
+              echo('detected failure: Vet stage')
+              throw(e)
+            }
+          },
+
+          'Test': {
+            try {
+              sh "docker run -e CI=true $IMAGE npm run test -- --maxWorkers=3"
+            } catch (e) {
+              echo('detected failure: Test stage')
+              throw(e)
+            }
+          }
+        )
+      }
+    }
+
   }
 }
