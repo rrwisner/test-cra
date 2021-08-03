@@ -15,6 +15,12 @@ podTemplate(
   slaveConnectTimeout: 720,
   containers: [
     containerTemplate(
+      name: 'nodejs',
+      image:'node:alpine',
+      ttyEnabled: true,
+      alwaysPullImage: false
+    ),
+    containerTemplate(
       name: 'main',
       // the dockerfile for this is in joor-devenv/apps/builder
       image: '714845803326.dkr.ecr.us-east-1.amazonaws.com/joor-builder',
@@ -60,6 +66,34 @@ podTemplate(
 {
   node(label) {
 
+    stage('Vet and Test') {
+      container('nodejs') {
+        def scmVars = checkout scm
+        env.CI = true
+        sh "yarn"
+
+        parallel (
+          'Vet': {
+            try {
+              sh "yarn lint"
+            } catch (e) {
+              echo('detected failure: Vet stage')
+              throw(e)
+            }
+          },
+
+          'Test': {
+            try {
+              sh "yarn test"
+            } catch (e) {
+              echo('detected failure: Test stage')
+              throw(e)
+            }
+          }
+        )
+      }
+    }
+
     stage('Setup') {
       container('main') {
         def scmVars = checkout scm
@@ -78,30 +112,6 @@ podTemplate(
         }
 
         sh "docker build --build-arg NPM_TOKEN_ARG=\$NPM_TOKEN --network=host -t $IMAGE ."
-      }
-    }
-
-    stage('Vet and Test') {
-      container('main') {
-        parallel (
-          'Vet': {
-            try {
-              sh "docker run $IMAGE npm run lint -- --quiet"
-            } catch (e) {
-              echo('detected failure: Vet stage')
-              throw(e)
-            }
-          },
-
-          'Test': {
-            try {
-              sh "docker run -e CI=true $IMAGE npm run test -- --maxWorkers=3"
-            } catch (e) {
-              echo('detected failure: Test stage')
-              throw(e)
-            }
-          }
-        )
       }
     }
 
