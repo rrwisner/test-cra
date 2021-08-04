@@ -142,10 +142,9 @@ podTemplate(
             env.COMMIT_TAG = "$DOCKER_REPOSITORY:$GIT_COMMIT"
 
             // push an image to ECR for use in local dev
-            sh '''
-              docker_login=$(aws ecr get-login --no-include-email --region us-east-1)
-              eval "$docker_login"
-            '''
+            sh """
+              aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $DOCKER_REPOSITORY_BASE
+            """
 
             // ensure the image is tagged with both commit SHA and branch
             sh """
