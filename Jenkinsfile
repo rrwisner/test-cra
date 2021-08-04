@@ -125,7 +125,7 @@ podTemplate(
               --network=host \
               -e AWS_ACCESS_KEY_ID=\$AWS_ACCESS_KEY_ID \
               -e AWS_SECRET_ACCESS_KEY=\$AWS_SECRET_ACCESS_KEY \
-              -e AWS_BUCKET_NAME=joor-test-cra \
+              -e AWS_BUCKET_NAME=joor-react-testing \
               -e REF=$REF \
               -e VERSION_ID=$GIT_COMMIT \
               -e GIT_BRANCH=$GIT_BRANCH \
