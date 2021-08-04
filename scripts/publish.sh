@@ -2,6 +2,11 @@ set -e
 
 export REACT_APP_RELEASE_VERSION="test-cra-${VERSION_ID}"
 
+echo ""
+echo "*** BUILD ENVIRONMENT VARIABLES for commit=$COMMIT ***"
+echo ""
+sh $(dirname $0)/env.sh
+
 if [[ $GIT_BRANCH == $MAINLINE_BRANCH ]]; then
   echo ""
   echo "*** BUILD WEBPACK BUNDLE for ref=$REF ***"
