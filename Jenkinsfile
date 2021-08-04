@@ -132,9 +132,9 @@ podTemplate(
               -e MAINLINE_BRANCH=$MAINLINE_BRANCH \
               -e COMMIT=$GIT_COMMIT \
               -e SENTRY_TOKEN=\$SENTRY_AUTH_TOKEN \
-              --entrypoint=sh \
+              --entrypoint=bash \
               $IMAGE \
-              ./publish.sh
+              publish.sh
           """
 
           // push stable reference for mainline branch
