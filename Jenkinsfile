@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 env.DOCKER_PROJECT="test-cra"
-env.DOCKER_REPOSITORY_BASE = '714845803326.dkr.ecr.us-east-1.amazonaws.com'
+env.DOCKER_REPOSITORY_BASE = '940202579111.dkr.ecr.us-east-1.amazonaws.com'
 env.DOCKER_REPOSITORY="$DOCKER_REPOSITORY_BASE/$DOCKER_PROJECT"
 env.MAINLINE_BRANCH="main"
 env.SLACK_CHANNEL="#pod-icarus"
