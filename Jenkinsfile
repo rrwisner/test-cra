@@ -115,5 +115,52 @@ podTemplate(
       }
     }
 
+    stage('Publish') {
+      container('main') {
+
+        try {
+          // ship assets to specified destination
+          sh """
+            docker run \
+              --network=host \
+              -e AWS_ACCESS_KEY_ID=\$AWS_ACCESS_KEY_ID \
+              -e AWS_SECRET_ACCESS_KEY=\$AWS_SECRET_ACCESS_KEY \
+              -e AWS_BUCKET_NAME=joor-test-cra \
+              -e REF=$REF \
+              -e VERSION_ID=$GIT_COMMIT \
+              -e GIT_BRANCH=$GIT_BRANCH \
+              -e MAINLINE_BRANCH=$MAINLINE_BRANCH \
+              -e COMMIT=$GIT_COMMIT \
+              -e SENTRY_TOKEN=\$SENTRY_AUTH_TOKEN \
+              --entrypoint=sh \
+              $IMAGE \
+              scripts/publish.sh
+          """
+
+          // push stable reference for mainline branch
+          if (env.GIT_BRANCH == "$MAINLINE_BRANCH") {
+            env.COMMIT_TAG = "$DOCKER_REPOSITORY:$GIT_COMMIT"
+
+            // push an image to ECR for use in local dev
+            sh '''
+              docker_login=$(aws ecr get-login --no-include-email --region us-east-1)
+              eval "$docker_login"
+            '''
+
+            // ensure the image is tagged with both commit SHA and branch
+            sh """
+              docker push $IMAGE
+              docker tag $IMAGE $COMMIT_TAG
+              docker push $COMMIT_TAG
+            """
+          }
+        } catch (e) {
+          echo('detected failure: Publish stage')
+          throw(e)
+        }
+
+      }
+    }
+
   }
 }
