@@ -137,22 +137,22 @@ podTemplate(
               publish.sh
           """
 
-          // push stable reference for mainline branch
-          if (env.GIT_BRANCH == "$MAINLINE_BRANCH") {
-            env.COMMIT_TAG = "$DOCKER_REPOSITORY:$GIT_COMMIT"
+          // // push stable reference for mainline branch
+          // if (env.GIT_BRANCH == "$MAINLINE_BRANCH") {
+          //   env.COMMIT_TAG = "$DOCKER_REPOSITORY:$GIT_COMMIT"
 
-            // push an image to ECR for use in local dev
-            sh """
-              aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $DOCKER_REPOSITORY_BASE
-            """
+          //   // push an image to ECR for use in local dev
+          //   sh """
+          //     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $DOCKER_REPOSITORY_BASE
+          //   """
 
-            // ensure the image is tagged with both commit SHA and branch
-            sh """
-              docker push $IMAGE
-              docker tag $IMAGE $COMMIT_TAG
-              docker push $COMMIT_TAG
-            """
-          }
+          //   // ensure the image is tagged with both commit SHA and branch
+          //   sh """
+          //     docker push $IMAGE
+          //     docker tag $IMAGE $COMMIT_TAG
+          //     docker push $COMMIT_TAG
+          //   """
+          // }
         } catch (e) {
           echo('detected failure: Publish stage')
           throw(e)
