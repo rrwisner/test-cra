@@ -134,7 +134,7 @@ podTemplate(
               -e SENTRY_TOKEN=\$SENTRY_AUTH_TOKEN \
               --entrypoint=sh \
               $IMAGE \
-              publish.sh
+              ./publish.sh
           """
 
           // push stable reference for mainline branch
