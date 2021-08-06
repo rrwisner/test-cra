@@ -24,8 +24,6 @@ do
   # Otherwise use value from .env file
   [[ -z $value ]] && value=${varvalue}
 
-  if [[ $varname = REACT_APP* ]]; then
-    # Append configuration property to JS file
-    echo "window._env_.$varname = '$value';" >> $CONFIG_FILENAME
-  fi
+  # Append configuration property to JS file
+  echo "window._env_.$varname = '$value';" >> $CONFIG_FILENAME
 done < .env
