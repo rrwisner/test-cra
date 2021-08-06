@@ -7,7 +7,7 @@ rm -rf $CONFIG_FILENAME
 touch $CONFIG_FILENAME
 
 # Add assignment 
-echo "window._env_ = {" >> $CONFIG_FILENAME
+echo "window._env_ = window._env_ || {};" >> $CONFIG_FILENAME
 
 # Read each line in .env file
 # Each line represents key=value pairs
@@ -24,8 +24,8 @@ do
   # Otherwise use value from .env file
   [[ -z $value ]] && value=${varvalue}
 
-  # Append configuration property to JS file
-  echo "  $varname: '$value'," >> $CONFIG_FILENAME
+  if [[ $varname = REACT_APP* ]]; then
+    # Append configuration property to JS file
+    echo "window._env_.$varname = '$value';" >> $CONFIG_FILENAME
+  fi
 done < .env
-
-echo "}" >> $CONFIG_FILENAME
