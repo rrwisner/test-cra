@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 export REACT_APP_RELEASE_VERSION="test-cra-${VERSION_ID}"
@@ -5,7 +6,7 @@ export REACT_APP_RELEASE_VERSION="test-cra-${VERSION_ID}"
 echo ""
 echo "*** BUILD ENVIRONMENT VARIABLES for commit=$COMMIT ***"
 echo ""
-sh $(dirname $0)/env.sh
+sh $(dirname $0)/run.sh
 
 if [[ $GIT_BRANCH == $MAINLINE_BRANCH ]]; then
   echo ""
