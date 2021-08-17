@@ -2,7 +2,7 @@
 
 export CONFIG_FILENAME=./build/config.js
 export ENV_FILENAME=.env
-export ENV_TEMP=.env_clean
+export ENV_TEMP=.env_temp
 
 echo "" >> $ENV_FILENAME
 sed '/^$/d' $ENV_FILENAME > $ENV_TEMP
