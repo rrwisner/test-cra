@@ -2,6 +2,12 @@
 
 export CONFIG_FILENAME=./build/config.js
 export ENV_FILENAME=.env
+export ENV_TEMP=.env_clean
+
+echo "" >> $ENV_FILENAME
+sed '/^$/d' $ENV_FILENAME > $ENV_TEMP
+cp $ENV_TEMP $ENV_FILENAME
+rm -f $ENV_TEMP
 
 echo "=============================="
 echo "Printing $ENV_FILENAME:"
@@ -19,7 +25,7 @@ COUNTER=0
 
 # Read each line in .env file
 # Each line represents key=value pairs
-for line in `sed '/^$/d' $ENV_FILENAME`; do
+while read -r line; do 
 
   COUNTER=$((COUNTER+1))
 
@@ -41,7 +47,7 @@ for line in `sed '/^$/d' $ENV_FILENAME`; do
   # Append configuration property to JS file
   echo "window._env_.$varname = '$value';" >> $CONFIG_FILENAME
 
-done
+done < $ENV_FILENAME
 
 echo ""
 echo "=============================="
