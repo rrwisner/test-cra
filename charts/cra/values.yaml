@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: 714845803326.dkr.ecr.us-east-1.amazonaws.com/test-cra:branch-main
-  pullPolicy: IfNotPresent
+  repository: 940202579111.dkr.ecr.us-east-1.amazonaws.com/test-cra
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: 'latest'
 
