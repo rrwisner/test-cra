@@ -62,7 +62,7 @@ f.close()
 # Read commit reference
 
 with open("ref", "r") as fileObject:
-    commit = next(fileObject)
+    ref = next(fileObject)
 
 # Update cloudfront distribution-config
 
@@ -71,11 +71,14 @@ distribution_config = json.load(fileObject)
 fileObject.close()
 
 if "DistributionConfig" in distribution_config:
-
+    etag = distribution_config["ETag"]
     distribution_config = distribution_config["DistributionConfig"]
 
     for item in distribution_config["Origins"]["Items"]:
-        item["OriginPath"] = "sandbox/{}".format(commit)
+        item["OriginPath"] = "/sandbox/{}".format(ref)
+    
+    with open("etag", "w") as fileObject:
+        fileObject.write(etag)
 
     with open("distribution-config.json", "w") as fileObject:
         json.dump(distribution_config, fileObject, indent=4)

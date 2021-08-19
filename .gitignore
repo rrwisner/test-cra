@@ -29,6 +29,7 @@ yarn.lock
 
 s3
 ref
+etag
 distribution-config.json
 
 config.js
