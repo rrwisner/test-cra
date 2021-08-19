@@ -59,5 +59,26 @@ for key in environment:
 
 f.close()
 
+# Read commit reference
+
+with open("ref", "r") as fileObject:
+    commit = next(fileObject)
+
+# Update cloudfront distribution-config
+
+fileObject = open('distribution-config.json', 'r')
+distribution_config = json.load(fileObject)
+fileObject.close()
+
+if "DistributionConfig" in distribution_config:
+
+    distribution_config = distribution_config["DistributionConfig"]
+
+    for item in distribution_config["Origins"]["Items"]:
+        item["OriginPath"] = "sandbox/{}".format(commit)
+
+    with open("distribution-config.json", "w") as fileObject:
+        json.dump(distribution_config, fileObject, indent=4)
+
 print("===========================")
 print("Done")

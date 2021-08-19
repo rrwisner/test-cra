@@ -1,2 +1,2 @@
-API_URL: 'https://production.api.com'
-IRRELEVANT: 'https://irrelevant.api.com'
+API_URL: 'https://test-cra.codehutlabs.net'
+IRRELEVANT: 'https://irrelevant.example.com'

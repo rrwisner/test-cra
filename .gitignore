@@ -28,5 +28,7 @@ yarn.lock
 .venv
 
 s3
+ref
+distribution-config.json
 
 config.js
