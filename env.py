@@ -3,6 +3,16 @@ from pathlib import Path
 import json
 import os
 import yaml
+import subprocess
+
+
+# Helper functions
+
+def get_git_revision_hash():
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+
+def get_git_revision_short_hash():
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
 
 # Get ROOT_DIR, make sure s3 folder exists
 

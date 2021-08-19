@@ -11,7 +11,7 @@ RUN yarn build
 FROM nginx:latest
 
 RUN apt-get update && apt-get install -y \
-  awscli jq build-essential curl bison \
+  awscli git jq build-essential curl bison \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /var/cache/apt/*
 
