@@ -101,6 +101,8 @@ podTemplate(
         env.GIT_BRANCH = scmVars.GIT_BRANCH
         env.IMAGE = "$DOCKER_REPOSITORY:branch-$GIT_BRANCH"
 
+        sh "echo ${env.GIT_BRANCH};"
+
         if (!env.GIT_BRANCH.matches("[a-zA-Z0-9\\._-]+")) {
           error "A feature branch namespace may only contain the following characters a-z, A-Z, 0-9, -, _, ~."
         }
