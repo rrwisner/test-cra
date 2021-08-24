@@ -1,0 +1,141 @@
+#!/usr/bin/env groovy
+
+env.DOCKER_PROJECT="test-cra"
+env.DOCKER_REPOSITORY_BASE = '714845803326.dkr.ecr.us-east-1.amazonaws.com'
+env.DOCKER_REPOSITORY="$DOCKER_REPOSITORY_BASE/$DOCKER_PROJECT"
+env.MAINLINE_BRANCH="main"
+env.SLACK_CHANNEL="#pod-icarus"
+
+// guarantee this podtemplate is always unique to avoid a bug where executors
+// with matching names collide with eachother and prevent scheduling
+def label = "test-cra-release-${UUID.randomUUID().toString()}"
+
+podTemplate(
+  label: label,
+  slaveConnectTimeout: 720,
+  containers: [
+    containerTemplate(
+      name: 'python',
+      image:'python:latest',
+      ttyEnabled: true,
+      alwaysPullImage: false
+    ),
+    containerTemplate(
+      name: 'deployer',
+      image: '714845803326.dkr.ecr.us-east-1.amazonaws.com/joor-deployer:latest',
+      ttyEnabled: true,
+      alwaysPullImage: true,
+      command: 'cat',
+      envVars: [
+        secretEnvVar(
+          key: 'AWS_ACCESS_KEY_ID',
+          secretName: 'cicd-jenkins-generic',
+          secretKey: 'aws_access_key_id.value'
+        ),
+        secretEnvVar(
+          key: 'AWS_SECRET_ACCESS_KEY',
+          secretName: 'cicd-jenkins-generic',
+          secretKey: 'aws_secret_access_key.value'
+        ),
+        secretEnvVar(
+          key: 'JOORBOT_OAUTH',
+          secretName: 'github-webhooks',
+          secretKey: 'joorbot_oauth.value'
+        ),
+        secretEnvVar(
+          key: 'GIT_API_TOKEN',
+          secretName: 'github-webhooks',
+          secretKey: 'joorbot_oauth.value'
+        ),
+        secretEnvVar(
+          key: 'NPM_TOKEN',
+          secretName: 'cicd-joorbot',
+          secretKey: 'joorbot-designsystem-token'
+        ),
+        envVar(
+          key: 'GIT_USERNAME',
+          value: 'joorbot'
+        ),
+        envVar(
+          key: 'AWS_DEFAULT_REGION',
+          value: 'us-east-1'
+        ),
+        envVar(
+          key: 'HOME',
+          value: '/root'
+        ),
+        envVar(
+          key: 'JOOR_CHART_REPOSITORY',
+          value: 's3://s3-joordev-com/charts/'
+        ),
+        envVar(
+          key: 'ANSIBLE_VAULT_PASSWORD_FILE',
+          value: '/var/ansible_password'
+        )
+      ]
+    )
+  ],
+  volumes: [
+    // mount the host's docker socket so we can build docker images
+    // and reuse cache across builds on the same node
+    hostPathVolume(
+      mountPath: '/var/run/docker.sock',
+      hostPath:  '/var/run/docker.sock'
+    ),
+  ]
+)
+{
+  node(label) {
+
+    stage('Checkout') {
+      container('deployer') {
+        sh """
+            export AWS_ACCESS_KEY_ID="\$AWS_ACCESS_KEY_ID"
+            export AWS_SECRET_ACCESS_KEY="\$AWS_SECRET_ACCESS_KEY"
+            export NPM_TOKEN="\$NPM_TOKEN"
+
+            rm -f ref etag
+            git clone "https://\$GIT_USERNAME:\$GIT_API_TOKEN@github.com/joor/test-cra.git" .
+            COMMIT=$(git rev-parse HEAD)
+            echo $COMMIT
+            echo -n $COMMIT > ref
+            git clone "https://\$GIT_USERNAME:\$GIT_API_TOKEN@github.com/joor/test-chart.git"
+            cp test-chart/sandbox.yml yaml/sandbox.yaml
+            rm -rf test-chart
+            ls -al
+
+            aws s3 sync --delete s3://joor-react-testing/$COMMIT ./s3/
+            aws cloudfront get-distribution-config --id $CLOUDFRONT > distribution-config.json
+        """
+      }
+    }
+
+    stage('Python') {
+      container('python') {
+        sh """
+            rm -rf .venv
+            python3 -m venv .venv
+            .venv/bin/pip install -U pip
+            .venv/bin/pip install -r requirements.txt
+            .venv/bin/python env.py
+        """
+      }
+    }
+
+    stage('Deploy') {
+      container('deployer') {
+        sh """
+            COMMIT=$(cat ref)
+            echo $COMMIT
+            ETAG=$(cat etag)
+            echo $ETAG
+            aws s3 sync --delete ./s3/ s3://joor-react-testing/sandbox/$COMMIT
+            aws cloudfront update-distribution --id $CLOUDFRONT --distribution-config file://distribution-config.json --if-match $ETAG
+            ls -al
+            ls -al s3
+        """
+      }
+    }
+
+  }
+}
